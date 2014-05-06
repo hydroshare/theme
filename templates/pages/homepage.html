@@ -1,8 +1,76 @@
-{% extends "pages/page.html" %}
+    {% extends "pages/page.html" %}
 
 {% load mezzanine_tags static blog_tags %}
 
+
 {% block all_content %}
+    <script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            Recaptcha.create("6LegBPMSAAAAAJAwAEOt_ersY5DyHzx1V-vItjXs",
+            "recaptcha-div", {
+              theme: "clean",
+              callback: Recaptcha.focus_response_field
+            });
+
+            $("#signup").click(function() {
+                var firstName = $("#firstname").val();
+                var lastName = $("#lastname").val();
+                var email = $("#email").val();
+                var password = $("#password").val();
+                var pwconfirm = $("#pwconfirm").val();
+
+                function onSuccess() {
+                    document.location.href = '/verify-account/';
+                }
+                function onFailure(data, stuff) {
+                    console.log(data);
+                    console.log(stuff);
+                    alert('cannot create account');
+                }
+                if(password===pwconfirm) {
+                    $.ajax({
+                        type: "POST",
+                        url:'/hsapi/_internal/verify_captcha/',
+                        data:{
+                            challenge: Recaptcha.get_challenge(),
+                            response: Recaptcha.get_response()
+                        },
+                        success: function() {
+                            $.ajax({
+                                type: "POST",
+                                url:'/hsapi/accounts/',
+                                data: {
+                                    username: email,
+                                    first_name: firstName,
+                                    last_name: lastName,
+                                    email: email,
+                                    superuser: false,
+                                    password: password
+                                },
+                                success: onSuccess,
+                                error: onFailure
+                            });
+                        },
+                        error: function() {
+                            Recaptcha.reload();
+                        }
+                    });
+
+                }
+                else {
+                    $("#password").val('');
+                    $("#pwconfirm").val('');
+                    $("div.showcase").append('<p class="alert alert-danger">Passwords do not match</p>');
+                }
+            });
+
+            $("#email").change(function() {
+                $("#username").val($("#email").val());
+            })
+        });
+    </script>
+
     <!-- Showcase
     ================ -->
     <div id="wrap" style="background-image: url('{{ MEDIA_URL }}{% thumbnail page.homepage.header_background 1000 500 %}');">
@@ -10,7 +78,7 @@
             <div class="row">
                 <div class="col-md-6 col-sm-12">
                     {% editable page.homepage.heading %}
-                    <h1 class="animated slideInDown">{{ page.homepage.heading }}</h1>
+                    <h1 class="animated slideInDown"><img src="{{ STATIC_URL }}img/logo-lg.png" alt="{{ page.homepage.heading }}"/>{# page.homepage.heading #}</h1>
                     {% endeditable %}
                     {% editable page.homepage.slide_in_one_icon page.homepage.slide_in_one page.homepage.slide_in_two_icon page.homepage.slide_in_two page.homepage.slide_in_three_icon page.homepage.slide_in_three %}
                     <div class="list">
@@ -30,37 +98,44 @@
                 </div>
                 <div class="col-md-6 hidden-sm hidden-xs">
                     <div class="showcase">
+                        {% if user.is_anonymous %}
                         <div class="iMac animated fadeInDown">
                         
                         <!-- signup -->
-                        <div class="front-signup js-front-signup">
-  <h2><strong>New to Hydroshare?</strong></h2>
+                        <div class="front-signup js-front-signup" style="padding-top: 1.5em;">
+                          <form action="" class="" method="post" role="form">
+                              {% csrf_token %}
+                              <div class="row">
+                                <div class="form-group">
+                                  <input type="text" class="form-control" autocomplete="off" id="firstname" name="firstname" maxlength="20" placeholder="First name">
+                                </div>
+                                <div class="form-group">
+                                  <input type="text" class="form-control" autocomplete="off" id="lastname" name="lastname" maxlength="20" placeholder="Last name">
+                                </div>
 
-  <form action="https://twitter.com/signup" class="account-form" method="post">
-  <fieldset>
-      <div class="form-group input_id_password ">
-      <input type="text" class="text-input" autocomplete="off" id="id_username" name="user[name]" maxlength="20" placeholder="First name">
-    </div>
-    <div class="form-group input_id_password ">
-      <input type="text" class="text-input" autocomplete="off" id="id_username" name="user[name]" maxlength="20" placeholder="Last name">
-    </div>
-    <div class="form-group input_id_password ">
+                                <div class="form-group">
 
-      <input type="text" class="text-input email-input" autocomplete="off" id="id_username" name="user[email]" placeholder="Email">
-    </div>
-    <div class="form-group input_id_password ">
-      <input type="password" class="text-input" name="user[user_password]" id="id_username" placeholder="Password">
-    </div>
-        <div class="form-group input_id_password ">
-      <input type="password" class="text-input" name="user[user_password]" id="id_username" placeholder="Password Again">
-    </div>
-    
-<input class="hl-btn hl-btn-green" type="submit" value="Start Collaborating">
-</fieldset>
-  </form>
-</div>
-<!-- signup -->
-</div>
+                                  <input type="email" class="text-input email-input form-control" autocomplete="off" id="email" name="email" placeholder="Email">
+                                </div>
+                                  <div class="form-group">
+                                  <input type="text" class="form-control" autocomplete="off" id="username" name="username" maxlength="20" placeholder="Username">
+                                  </div>
+                                <div class="form-group">
+                                  <input type="password" class="text-input form-control" name="password" id="password" placeholder="Password">
+                                </div>
+                                    <div class="form-group">
+                                  <input type="password" class="text-input form-control" name="pwconfirm" id="pwconfirm" placeholder="Password Again">
+                                </div>
+
+                                <div id="recaptcha-div" style="margin-bottom: 0.5em; background: white; border-radius: 4px; border: 1px solid"></div>
+
+                                <input class="hl-btn hl-btn-green btn-block" type="button" id="signup" value="Sign up & start collaborating.">
+
+                          </form>
+                        </div>
+                        <!-- signup -->
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -87,7 +162,7 @@
         </div>
         {% endif %}
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-11">
                 {% editable page.homepage.welcome_heading %}
                 <div class="block-header">
                     <h2>
@@ -99,7 +174,7 @@
                 {{ page.homepage.content|richtext_filters|safe }}
                 {% endeditable %}
             </div>
-
+            {% comment %}
             <div class="col-md-4">
                 {% editable page.homepage.recent_blog_heading page.homepage.number_recent_posts %}
                 <div class="block-header">
@@ -133,89 +208,8 @@
                     </div>
                 </div>
             </div>
+            {% endcomment %}
         </div>
-        
-        {% comment %}
-        <!-- Recent Works
-            =================== -->
-        <div class="row">
-            <div class="col-md-12 block-header">
-                <h2>
-                    <span class="title">Recent Works</span><span class="decoration"></span><span class="decoration"></span><span class="decoration"></span>
-                </h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3 col-sm-6">
-                <div class="thumbnail">
-                    <img src="{% static "img/works1.jpg" %}" class="img-responsive" alt="...">
-                    <div class="visit"><a href="#"><i class="fa fa-question-circle"></i> More details...</a></div>
-                    <div class="caption">
-                        <h4>Project #1</h4>
-                            <div class="rating">
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i>
-                            </div>
-                        <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="thumbnail">
-                    <img src="{% static "img/works2.jpg" %}" class="img-responsive" alt="...">
-                    <div class="visit"><a href="#"><i class="fa fa-question-circle"></i> More details...</a></div>
-                    <div class="caption">
-                        <h4>Project #2</h4>
-                            <div class="rating">
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                            </div>
-                        <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="clearfix visible-sm"></div>
-            <div class="col-md-3 col-sm-6">
-                <div class="thumbnail">
-                    <img src="{% static "img/works3.jpg" %}" class="img-responsive" alt="...">
-                    <div class="visit"><a href="#"><i class="fa fa-question-circle"></i> More details...</a></div>
-                    <div class="caption">
-                        <h4>Project #3</h4>
-                            <div class="rating">
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star-half"></i>
-                            </div>
-                        <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="thumbnail">
-                    <img src="{% static "img/works4.jpg" %}" class="img-responsive" alt="...">
-                    <div class="visit"><a href="#"><i class="fa fa-question-circle"></i> More details...</a></div>
-                    <div class="caption">
-                        <h4>Project #4</h4>
-                            <div class="rating">
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i> 
-                                <i class="fa fa-star"></i>
-                            </div>
-                        <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endcomment %}
     </div>
     
 {% endblock %}

@@ -41,6 +41,7 @@
 <script src="{% static "js/bootstrap-extras.js" %}"></script>
 <script src="{% static "js/hydrosharecustom.js" %}"></script>
 <script src="{% static "js/scrolltopcontrol.js" %}"></script><!-- Scroll to top javascript -->
+<script src="{% static "js/jqcsrf.js" %}"></script>
 {% block extra_js %}{% endblock %}
 {% endcompress %}
 
@@ -71,10 +72,11 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/">{{ settings.SITE_TITLE }}</a>
+                <a class="navbar-brand" href="/"><img src="{{ STATIC_URL }}img/logo-sm.png" alt="{{ settings.SITE_TITLE }}"/></a>
             </div>
             <div class="collapse navbar-collapse">
                 {% page_menu "pages/menus/dropdown.html" %}
+                {% comment %}
                 <!-- Search form for extra small screens -->
                 <form class="navbar-form navbar-left visible-xs" role="search" action="{% url 'search' %}">
                     <div class="input-group">
@@ -84,6 +86,7 @@
                         </span>
                     </div>
                 </form>
+                {% endcomment %}
                 <ul class="nav navbar-nav navbar-right hidden-xs">
                     {% ifinstalled mezzanine.accounts %}
                     {% if request.user.is_authenticated %}
@@ -102,6 +105,7 @@
                     <li id="signin-menu"><a href="{% url 'login' %}">Sign In</a></li>
                     {% endif %}
                     {% endifinstalled %}
+                    {% comment %}
                     <!-- Search Button -->
                     <li id="search">
                         <a href="#" id="search-btn" onclick="return false;"><i class="fa fa-search" id="search-icon"></i> Search</a>
@@ -114,6 +118,7 @@
                             </form>
                         </div>
                     </li>
+                    {% endcomment %}
                 </ul>
             </div>
         </div>
@@ -248,7 +253,7 @@
             <div class="row">
                 <div class="col-md-12">
                     {% editable siteconf.copyright %}
-                    <p>{{ siteconf.render_copyright }}</p>
+                    <p>{{ siteconf.render_copyright }} | <a href="/terms-of-use">Terms Of Use</a> | <a href="/privacy">Statement of Privacy</a></p>
                     {% endeditable %}
                 </div>
             </div>
