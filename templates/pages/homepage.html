@@ -7,13 +7,14 @@
     <script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
     <script type="text/javascript">
         $(function() {
-            Recaptcha.create("6LegBPMSAAAAAJAwAEOt_ersY5DyHzx1V-vItjXs",
+            Recaptcha.create("6LdNC_USAAAAAHSocU3ZpfEFHBwORoMdOBcrSUPP",
             "recaptcha-div", {
               theme: "clean",
               callback: Recaptcha.focus_response_field
             });
 
             $("#signup").click(function() {
+                var username = $("#username").val();
                 var firstName = $("#firstname").val();
                 var lastName = $("#lastname").val();
                 var email = $("#email").val();
@@ -41,7 +42,7 @@
                                 type: "POST",
                                 url:'/hsapi/accounts/',
                                 data: {
-                                    username: email,
+                                    username: username,
                                     first_name: firstName,
                                     last_name: lastName,
                                     email: email,
@@ -64,10 +65,6 @@
                     $("div.showcase").append('<p class="alert alert-danger">Passwords do not match</p>');
                 }
             });
-
-            $("#email").change(function() {
-                $("#username").val($("#email").val());
-            })
         });
     </script>
 

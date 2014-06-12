@@ -1,4 +1,4 @@
-
+from django.contrib.auth.models import User
 from django.db import models
 from django.template import RequestContext, Template, TemplateSyntaxError
 from django.utils.translation import ugettext_lazy as _
@@ -107,3 +107,50 @@ class IconBox(Orderable):
     link_text = models.CharField(max_length=100)
     link = models.CharField(max_length=2000, blank=True,
         help_text="Optional, if provided clicking the box will go here.")
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    picture = models.ImageField(upload_to='profile', null=True, blank=True)
+
+    title = models.CharField(
+        max_length=1024, null=True, blank=True,
+        help_text='e.g. Assistant Professor, Program Director, Adjunct Professor, Software Developer.')
+    profession = models.CharField(
+        max_length=1024,
+        null=True,
+        blank=True,
+        default='Student',
+        help_text='e.g. Student, Researcher, Research Faculty, Research Staff, Project Manager, Teacher, Research Assistant.'
+    )
+    subject_areas = models.CharField(
+        max_length=1024, null=True, blank=True,
+        help_text='A comma-separated list of subject areas you are interested in researching. e.g. "Computer Science, Hydrology, Water Management"')
+    organization = models.CharField(
+        max_length=1024,
+        null=True,
+        blank=True,
+        help_text="The name of the organization you work for."
+    )
+    organization_type = models.CharField(max_length=1024, null=True, blank=True, choices=(
+        ('Higher Education','Higher Education'),
+        ('Research','Research'),
+        ('Government','Government'),
+        ('Commercial','Commercial'),
+        ('Primary Education','Primary Education'),
+        ('Secondary Education', 'Secondary Education'),
+    ))
+    phone_1 = models.CharField(max_length=1024, null=True, blank=True)
+    phone_1_type = models.CharField(max_length=1024, null=True, blank=True, choices=(
+        ('Home','Home'),
+        ('Work','Work'),
+        ('Mobile','Mobile'),
+    ))
+    phone_2 = models.CharField(max_length=1024, null=True, blank=True)
+    phone_2_type = models.CharField(max_length=1024, null=True, blank=True, choices=(
+        ('Home','Home'),
+        ('Work','Work'),
+        ('Mobile','Mobile'),
+    ))
+    public = models.BooleanField(default=True, help_text='Uncheck to make your profile information private.')
+    cv = models.FileField(upload_to='profile', help_text='Upload your Curriculum Vitae if you wish people to be able to download it.', null=True, blank=True)
+    details = RichTextField(help_text='Tell the Hydroshare community a little about yourself.', null=True, blank=True)

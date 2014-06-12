@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="{{ LANGUAGE_CODE }}"{% if LANGUAGE_BIDI %} dir="rtl"{% endif %}>
-{% load pages_tags mezzanine_tags i18n future staticfiles theme_tags %}
+{% load pages_tags mezzanine_tags i18n future staticfiles theme_tags hydroshare_tags %}
 {% get_site_conf as siteconf %}
 <head>
 
@@ -16,7 +16,7 @@
 <link rel="alternate" type="application/atom+xml" title="Atom" href="{% url "blog_post_feed" "atom" %}">
 {% endifinstalled %}
 
-<link href='http://fonts.googleapis.com/css?family=Lato:100,300,400' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
 <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
 {% compress css %}
@@ -91,7 +91,7 @@
                     {% ifinstalled mezzanine.accounts %}
                     {% if request.user.is_authenticated %}
                     <li id="profile-menu" class="display-block">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ request.user }} <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ request.user|best_name }} <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li class="account">
                                 <p><b>{{ request.user }}</b>{% if request.user.email %}<br />{{ request.user.email }}{% endif %}</p>
@@ -101,7 +101,7 @@
                         </ul>
                     </li>
                     {% else %}
-                    <li id="signup-menu"><a href="{% url 'signup' %}">Sign Up</a></li>
+                    <!-- <li id="signup-menu"><a href="{% url 'signup' %}">Sign Up</a></li> -->
                     <li id="signin-menu"><a href="{% url 'login' %}">Sign In</a></li>
                     {% endif %}
                     {% endifinstalled %}
