@@ -7,10 +7,15 @@
     <script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
     <script type="text/javascript">
         $(function() {
+            function cb() {
+                $("#recaptcha_privacy").attr('style', "display:none");
+                Recaptcha.focus_response_field();
+            }
+
             Recaptcha.create("6LdNC_USAAAAAHSocU3ZpfEFHBwORoMdOBcrSUPP",
             "recaptcha-div", {
               theme: "clean",
-              callback: Recaptcha.focus_response_field
+              callback: cb // Recaptcha.focus_response_field
             });
 
             $("#signup").click(function() {
